@@ -133,16 +133,25 @@ class HReader:
         """Read multiple files and store the data with respect to the hierarchy specification of values.
 
         :param data_files: list of files
-        :return: the result dictionary
+        :param mode (str): reading mode for the files.
+        :param carry_state (bool): whether to carry the state between file reads.
+        :return: the combined result hierarchy
         """
-        combined_results = {}
-        for data_file in data_files:
-            current_hierarchy, current_state = self.read(data_file, mode=mode, carry_state=carry_state)
-            combined_results = Hierarchy.merge(self.hierarchy_spec, combined_results, current_hierarchy)
+        final_hierarchy = {}  # Initialize an empty hierarchy for the final result
+        current_state = deepcopy(self.state)  # Start with the initial state
+        
+        for file in data_files:
+            value_hierarchy, current_state = self.read(file, mode=mode, carry_state=carry_state)  # Process each file into a hierarchical structure and update the state
+            final_hierarchy = Hierarchy.merge(self.hierarchy_spec, final_hierarchy, value_hierarchy, post=True, state=current_state)  # Merge the result into the final hierarchy with the updated state and post-processing
+            
             if not carry_state:
-                self.clear_state()
-        Hierarchy.apply_post_map(self.hierarchy_spec, combined_results, self.state)
-        return combined_results
+                self.clear_state()  # Optionally reset the internal state if not carrying state between files
+                current_state = deepcopy(self.state)  # Reset current state to initial state
+
+        Hierarchy.apply_post_map(self.hierarchy_spec, final_hierarchy, current_state)  # Apply post-processing to the final result hierarchy with the final state
+        return final_hierarchy  # Return the final result hierarchy
 
     def clear_state(self):
         self.state = deepcopy(self.__init_state)
+        
+        
