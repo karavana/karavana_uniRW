@@ -135,18 +135,7 @@ class HReader:
         :param data_files: list of files
         :return: the result dictionary
         """
-        final_value_hierarchy = {}
-
-        merge = Hierarchy.merge
-        read = self.read
-        hierarchy_spec = self.hierarchy_spec
-        # read each file and merge the result dictionary
-        for data_file in data_files:
-            value_hierarchy, final_state = read(data_file, mode, carry_state)
-            final_value_hierarchy = \
-                merge(hierarchy_spec, final_value_hierarchy, value_hierarchy, True, final_state, False)
-
-        return final_value_hierarchy
+        pass
 
     def clear_state(self):
         self.state = deepcopy(self.__init_state)
