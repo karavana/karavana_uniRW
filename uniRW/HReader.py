@@ -142,14 +142,15 @@ class HReader:
         
         for file in data_files:
             value_hierarchy, current_state = self.read(file, mode=mode, carry_state=carry_state)  # Process each file into a hierarchical structure and update the state
-            final_hierarchy = Hierarchy.merge(self.hierarchy_spec, final_hierarchy, value_hierarchy, post=True, state=current_state)  # Merge the result into the final hierarchy with the updated state and post-processing
+            final_hierarchy = Hierarchy.merge(self.hierarchy_spec, final_hierarchy, value_hierarchy, post=True, state=current_state, top=False)  # Merge the result into the final hierarchy with the updated state and post-processing
             
             if not carry_state:
                 self.clear_state()  # Optionally reset the internal state if not carrying state between files
                 current_state = deepcopy(self.state)  # Reset current state to initial state
 
-        Hierarchy.apply_post_map(self.hierarchy_spec, final_hierarchy, current_state)  # Apply post-processing to the final result hierarchy with the final state
+        # Removed explicit post-processing as it is already handled by the `merge` method when `post` is set to `True`.
         return final_hierarchy  # Return the final result hierarchy
+        pass
 
     def clear_state(self):
         self.state = deepcopy(self.__init_state)
